@@ -1,19 +1,40 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import Link from "next/link";
+import { useUserDetail } from "@/hooks/useUserDetail";
 import type { User, Post, Todo } from "@/types";
 
 interface Props {
-  user: User;
-  posts: Post[];
-  todos: Todo[];
+  id: string;
 }
 
-export default function UserDetailClient({ user, posts, todos }: Props) {
+export default function UserDetailClient({ id }: Props) {
+  const numericId = Number(id);
+  const { data, error, isLoading } = useUserDetail(numericId);
   const [showAllPosts, setShowAllPosts] = useState(false);
   const [showAllTodos, setShowAllTodos] = useState(false);
 
+  if (!Number.isFinite(numericId) || numericId < 1) {
+    return <NotFoundState />;
+  }
+
+  if (isLoading) {
+    return <DetailSkeleton />;
+  }
+
+  if (error || !data) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-8">
+        <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
+          <p className="text-lg font-medium text-red-600">Failed to load user</p>
+          <p className="text-sm">Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const { user, posts, todos } = data;
   const displayedPosts = showAllPosts ? posts : posts.slice(0, 5);
   const displayedTodos = showAllTodos ? todos : todos.slice(0, 5);
 
@@ -134,6 +155,45 @@ function InfoItem({ label, value }: { label: string; value: string }) {
         {label}
       </dt>
       <dd className="mt-0.5 text-zinc-800">{value}</dd>
+    </div>
+  );
+}
+
+function DetailSkeleton() {
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mb-6 h-4 w-24 animate-pulse rounded bg-zinc-200" />
+      <div className="rounded-xl border border-zinc-200 p-6 shadow-sm">
+        <div className="mb-6 h-8 w-48 animate-pulse rounded bg-zinc-200" />
+        <div className="mb-6 grid gap-4 sm:grid-cols-2">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="h-10 animate-pulse rounded bg-zinc-200" />
+          ))}
+        </div>
+        <div className="mb-6 h-6 w-24 animate-pulse rounded bg-zinc-200" />
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 rounded-lg bg-zinc-50 p-4">
+          {Array.from({ length: 2 }, (_, i) => (
+            <div key={i} className="h-10 animate-pulse rounded bg-zinc-200" />
+          ))}
+        </div>
+        <div className="mb-6 h-6 w-24 animate-pulse rounded bg-zinc-200" />
+        <div className="grid gap-4 sm:grid-cols-2 rounded-lg bg-zinc-50 p-4">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="h-10 animate-pulse rounded bg-zinc-200" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NotFoundState() {
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
+        <p className="text-lg font-medium text-red-600">User not found</p>
+        <p className="text-sm">The requested user does not exist.</p>
+      </div>
     </div>
   );
 }

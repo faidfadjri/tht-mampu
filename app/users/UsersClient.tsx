@@ -2,15 +2,13 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useUsers } from "@/hooks/useUsers";
 import type { UserAggregated } from "@/types";
-
-interface Props {
-  users: UserAggregated[];
-}
 
 type SortKey = "name" | "pendingTodos" | "totalPosts";
 
-export default function UsersClient({ users }: Props) {
+export default function UsersList() {
+  const { data: users, error, isLoading } = useUsers();
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
@@ -19,6 +17,7 @@ export default function UsersClient({ users }: Props) {
   const perPage = 5;
 
   const filtered = useMemo(() => {
+    if (!users) return [];
     let result = users;
 
     if (search) {
@@ -62,6 +61,21 @@ export default function UsersClient({ users }: Props) {
     if (sortKey !== key) return "";
     return sortDir === "asc" ? " ▲" : " ▼";
   };
+
+  if (isLoading) {
+    return <UsersSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
+          <p className="text-lg font-medium text-red-600">Failed to load users</p>
+          <p className="text-sm">Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -231,6 +245,41 @@ export default function UsersClient({ users }: Props) {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+function UsersSkeleton() {
+  const rows = Array.from({ length: 5 }, (_, i) => i);
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-8">
+      <h1 className="mb-6 text-3xl font-bold">Users</h1>
+      <div className="overflow-x-auto rounded-xl border border-zinc-200">
+        <table className="w-full text-left text-sm" role="grid">
+          <thead>
+            <tr className="border-b bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500">
+              {["Name", "Email", "Website", "Posts", "Completed", "Pending"].map(
+                (h) => (
+                  <th key={h} scope="col" className="px-4 py-3 font-medium">
+                    {h}
+                  </th>
+                )
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((i) => (
+              <tr key={i} className="border-b last:border-0">
+                {Array.from({ length: 6 }, (_, j) => (
+                  <td key={j} className="px-4 py-3">
+                    <div className="h-4 w-full max-w-24 animate-pulse rounded bg-zinc-200" />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

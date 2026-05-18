@@ -52,9 +52,21 @@ jest.mock("next/link", () => {
   return MockLink;
 });
 
+import useSWR from "swr";
+jest.mock("swr");
+const mockedUseSWR = jest.mocked(useSWR);
+
 describe("UserDetailClient", () => {
+  beforeEach(() => {
+    mockedUseSWR.mockReturnValue({
+      data: { user: mockUser, posts: mockPosts, todos: mockTodos },
+      error: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useSWR>);
+  });
+
   it("renders user basic information", () => {
-    render(<UserDetailClient user={mockUser} posts={mockPosts} todos={mockTodos} />);
+    render(<UserDetailClient id="1" />);
 
     expect(screen.getByText("Leanne Graham")).toBeInTheDocument();
     expect(screen.getByText("Bret")).toBeInTheDocument();
@@ -64,7 +76,7 @@ describe("UserDetailClient", () => {
   });
 
   it("renders company information", () => {
-    render(<UserDetailClient user={mockUser} posts={mockPosts} todos={mockTodos} />);
+    render(<UserDetailClient id="1" />);
 
     expect(screen.getByText("Romaguera-Crona")).toBeInTheDocument();
     expect(
@@ -73,7 +85,7 @@ describe("UserDetailClient", () => {
   });
 
   it("renders address information", () => {
-    render(<UserDetailClient user={mockUser} posts={mockPosts} todos={mockTodos} />);
+    render(<UserDetailClient id="1" />);
 
     expect(screen.getByText("Kulas Light")).toBeInTheDocument();
     expect(screen.getByText("Apt. 556")).toBeInTheDocument();
@@ -82,7 +94,7 @@ describe("UserDetailClient", () => {
   });
 
   it("renders posts section with content", () => {
-    render(<UserDetailClient user={mockUser} posts={mockPosts} todos={mockTodos} />);
+    render(<UserDetailClient id="1" />);
 
     const postsSection = screen.getByRole("region", { name: /posts/i });
     expect(
@@ -95,7 +107,7 @@ describe("UserDetailClient", () => {
   });
 
   it("renders todos section with completion status", () => {
-    render(<UserDetailClient user={mockUser} posts={mockPosts} todos={mockTodos} />);
+    render(<UserDetailClient id="1" />);
 
     const todosSection = screen.getByRole("region", { name: /todos/i });
     expect(within(todosSection).getByText("todo one")).toBeInTheDocument();
@@ -104,7 +116,7 @@ describe("UserDetailClient", () => {
   });
 
   it("has a back to list link pointing to /users", () => {
-    render(<UserDetailClient user={mockUser} posts={mockPosts} todos={mockTodos} />);
+    render(<UserDetailClient id="1" />);
 
     const backLink = screen.getByRole("link", { name: /back to list/i });
     expect(backLink).toHaveAttribute("href", "/users");
@@ -118,9 +130,13 @@ describe("UserDetailClient", () => {
       body: `Body ${i + 1}`,
     }));
 
-    render(
-      <UserDetailClient user={mockUser} posts={manyPosts} todos={mockTodos} />
-    );
+    mockedUseSWR.mockReturnValue({
+      data: { user: mockUser, posts: manyPosts, todos: mockTodos },
+      error: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useSWR>);
+
+    render(<UserDetailClient id="1" />);
 
     expect(screen.getByText("Show all")).toBeInTheDocument();
   });
@@ -133,9 +149,13 @@ describe("UserDetailClient", () => {
       body: `Body ${i + 1}`,
     }));
 
-    render(
-      <UserDetailClient user={mockUser} posts={manyPosts} todos={mockTodos} />
-    );
+    mockedUseSWR.mockReturnValue({
+      data: { user: mockUser, posts: manyPosts, todos: mockTodos },
+      error: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useSWR>);
+
+    render(<UserDetailClient id="1" />);
 
     const listItems = screen.getAllByRole("listitem");
     expect(listItems.length).toBe(8);
@@ -145,7 +165,7 @@ describe("UserDetailClient", () => {
   });
 
   it("displays correct counts in section headings", () => {
-    render(<UserDetailClient user={mockUser} posts={mockPosts} todos={mockTodos} />);
+    render(<UserDetailClient id="1" />);
 
     expect(screen.getByText("Posts (2)")).toBeInTheDocument();
     expect(screen.getByText("Todos (3)")).toBeInTheDocument();

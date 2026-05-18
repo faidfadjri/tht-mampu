@@ -1,6 +1,6 @@
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import UsersClient from "@/app/users/UsersClient";
+import UsersList from "@/app/users/UsersClient";
 import type { UserAggregated } from "@/types";
 
 const mockUsers: UserAggregated[] = [
@@ -92,13 +92,25 @@ jest.mock("next/link", () => {
   return MockLink;
 });
 
+import useSWR from "swr";
+jest.mock("swr");
+const mockedUseSWR = jest.mocked(useSWR);
+
 function getTable() {
   return screen.getByRole("grid");
 }
 
-describe("UsersClient", () => {
+describe("UsersList", () => {
+  beforeEach(() => {
+    mockedUseSWR.mockReturnValue({
+      data: mockUsers,
+      error: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useSWR>);
+  });
+
   it("renders all users in the table", () => {
-    render(<UsersClient users={mockUsers} />);
+    render(<UsersList />);
     const table = getTable();
 
     expect(within(table).getByText("Leanne Graham")).toBeInTheDocument();
@@ -107,7 +119,7 @@ describe("UsersClient", () => {
   });
 
   it("filters users by name through search input", async () => {
-    render(<UsersClient users={mockUsers} />);
+    render(<UsersList />);
     const table = getTable();
 
     const searchInput = screen.getByRole("searchbox", {
@@ -121,7 +133,7 @@ describe("UsersClient", () => {
   });
 
   it("filters users by email through search input", async () => {
-    render(<UsersClient users={mockUsers} />);
+    render(<UsersList />);
     const table = getTable();
 
     const searchInput = screen.getByRole("searchbox", {
@@ -133,8 +145,8 @@ describe("UsersClient", () => {
     expect(within(table).queryByText("Ervin Howell")).not.toBeInTheDocument();
   });
 
-  it('shows empty state when search matches no users', async () => {
-    render(<UsersClient users={mockUsers} />);
+  it("shows empty state when search matches no users", async () => {
+    render(<UsersList />);
 
     const searchInput = screen.getByRole("searchbox", {
       name: /search users/i,
@@ -145,7 +157,7 @@ describe("UsersClient", () => {
   });
 
   it("sorts by pending todos ascending then descending", async () => {
-    render(<UsersClient users={mockUsers} />);
+    render(<UsersList />);
     const table = getTable();
 
     const sortPendingBtn = screen.getByRole("button", {
@@ -163,8 +175,8 @@ describe("UsersClient", () => {
     expect(within(rows[3]).getByText("Ervin Howell")).toBeInTheDocument();
   });
 
-  it('filters to show only users with pending todos', async () => {
-    render(<UsersClient users={mockUsers} />);
+  it("filters to show only users with pending todos", async () => {
+    render(<UsersList />);
     const table = getTable();
 
     const checkbox = screen.getByRole("checkbox", {
@@ -185,7 +197,13 @@ describe("UsersClient", () => {
       email: `user${i + 1}@test.com`,
     }));
 
-    render(<UsersClient users={manyUsers} />);
+    mockedUseSWR.mockReturnValue({
+      data: manyUsers,
+      error: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useSWR>);
+
+    render(<UsersList />);
     const table = getTable();
 
     expect(within(table).getByText("User 1")).toBeInTheDocument();
@@ -199,7 +217,7 @@ describe("UsersClient", () => {
   });
 
   it("displays aggregated metrics correctly", () => {
-    render(<UsersClient users={mockUsers} />);
+    render(<UsersList />);
     const table = getTable();
 
     const rows = within(table).getAllByRole("row");
