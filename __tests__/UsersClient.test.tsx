@@ -96,12 +96,35 @@ import useSWR from "swr";
 jest.mock("swr");
 const mockedUseSWR = jest.mocked(useSWR);
 
+jest.mock("lottie-react", () => ({
+  __esModule: true,
+  default: ({ style, className }: { style?: React.CSSProperties; className?: string }) => (
+    <div data-testid="lottie-animation" style={style} className={className} />
+  ),
+}));
+
+jest.mock("next/navigation", () => ({
+  useSearchParams: () => ({ get: () => null, toString: () => "" }),
+  useRouter: () => ({ replace: jest.fn(), push: jest.fn(), back: jest.fn() }),
+}));
+
 function getTable() {
   return screen.getByRole("grid");
 }
 
 describe("UsersList", () => {
   beforeEach(() => {
+    const MockObserver = jest.fn(() => ({
+      observe: jest.fn(),
+      disconnect: jest.fn(),
+      unobserve: jest.fn(),
+    }));
+    Object.defineProperty(window, "IntersectionObserver", {
+      writable: true,
+      configurable: true,
+      value: MockObserver,
+    });
+
     mockedUseSWR.mockReturnValue({
       data: mockUsers,
       error: undefined,
@@ -153,7 +176,7 @@ describe("UsersList", () => {
     });
     await userEvent.type(searchInput, "zzzzz");
 
-    expect(screen.getByText("No users found")).toBeInTheDocument();
+    expect(screen.getAllByText("No users found").length).toBeGreaterThanOrEqual(1);
   });
 
   it("sorts by pending todos ascending then descending", async () => {
@@ -216,6 +239,15 @@ describe("UsersList", () => {
     expect(within(table).queryByText("User 1")).not.toBeInTheDocument();
   });
 
+  it("renders a back to home button linking to /", () => {
+    render(<UsersList />);
+
+    const backBtn = screen.getByRole("link", { name: /back to home/i });
+    expect(backBtn).toHaveAttribute("href", "/");
+    expect(backBtn).toHaveClass("bg-[#0E9F8E]");
+    expect(backBtn).toHaveClass("text-white");
+  });
+
   it("displays aggregated metrics correctly", () => {
     render(<UsersList />);
     const table = getTable();
@@ -225,5 +257,57 @@ describe("UsersList", () => {
     expect(leanneRow.getByText("10")).toBeInTheDocument();
     expect(leanneRow.getByText("5")).toBeInTheDocument();
     expect(leanneRow.getByText("3")).toBeInTheDocument();
+  });
+
+  describe("UsersList skeleton", () => {
+    beforeEach(() => {
+      mockedUseSWR.mockReturnValue({
+        data: undefined,
+        error: undefined,
+        isLoading: true,
+      } as ReturnType<typeof useSWR>);
+    });
+
+    it("renders skeleton during loading", () => {
+      render(<UsersList />);
+      expect(screen.getByText("Users")).toBeInTheDocument();
+    });
+
+    it("renders back to home button in skeleton", () => {
+      render(<UsersList />);
+
+      const backBtn = screen.getByRole("link", { name: /back to home/i });
+      expect(backBtn).toHaveAttribute("href", "/");
+      expect(backBtn).toHaveClass("bg-[#0E9F8E]");
+    });
+
+    it("renders skeleton table with correct column headers", () => {
+      render(<UsersList />);
+      const table = screen.getByRole("grid");
+
+      const headers = within(table).getAllByRole("columnheader");
+      expect(headers).toHaveLength(6);
+      expect(headers[0]).toHaveTextContent("Name");
+      expect(headers[1]).toHaveTextContent("Email");
+      expect(headers[2]).toHaveTextContent("Website");
+      expect(headers[3]).toHaveTextContent("Posts");
+      expect(headers[4]).toHaveTextContent("Completed");
+      expect(headers[5]).toHaveTextContent("Pending");
+    });
+
+    it("renders skeleton table with 5 skeleton rows", () => {
+      render(<UsersList />);
+      const table = screen.getByRole("grid");
+      const rows = within(table).getAllByRole("row");
+      expect(rows).toHaveLength(6);
+    });
+
+    it("renders 5 mobile skeleton cards", () => {
+      render(<UsersList />);
+      const container = screen.getByText("Users").closest("div")!;
+      const cardContainer = container.querySelector(".grid.gap-4.md\\:hidden");
+      expect(cardContainer).toBeInTheDocument();
+      expect(cardContainer?.children).toHaveLength(5);
+    });
   });
 });

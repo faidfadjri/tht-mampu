@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useUserDetail } from "@/hooks/useUserDetail";
 import type { User, Post, Todo } from "@/types";
 
@@ -14,6 +15,15 @@ export default function UserDetailClient({ id }: Props) {
   const { data, error, isLoading } = useUserDetail(numericId);
   const [showAllPosts, setShowAllPosts] = useState(false);
   const [showAllTodos, setShowAllTodos] = useState(false);
+  const router = useRouter();
+
+  const goBack = useCallback(() => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/users");
+    }
+  }, [router]);
 
   if (!Number.isFinite(numericId) || numericId < 1) {
     return <NotFoundState />;
@@ -26,7 +36,7 @@ export default function UserDetailClient({ id }: Props) {
   if (error || !data) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-8">
-        <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
+        <div className="flex flex-col items-center justify-center py-20 text-[#4F6B7C]">
           <p className="text-lg font-medium text-red-600">Failed to load user</p>
           <p className="text-sm">Please try again later.</p>
         </div>
@@ -40,18 +50,18 @@ export default function UserDetailClient({ id }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <Link
-        href="/users"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+      <button
+        onClick={goBack}
+        className="mb-6 inline-flex items-center gap-2 bg-[#0E9F8E] text-white px-5 py-3 rounded-md font-semibold text-sm hover:bg-[#0C8A7C] transition-colors focus:outline-none focus:ring-2 focus:ring-[#0E9F8E]/40"
       >
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
         Back to list
-      </Link>
+      </button>
 
-      <div className="rounded-xl border border-zinc-200 p-6 shadow-sm">
-        <h1 className="mb-6 text-2xl font-bold">{user.name}</h1>
+      <div className="rounded-lg border border-[#E0E6EA] p-6 shadow-sm">
+        <h1 className="mb-6 text-2xl font-bold text-[#0F2A3B]" style={{ fontSize: "2rem", fontWeight: 600 }}>{user.name}</h1>
 
         <div className="mb-6 grid gap-4 sm:grid-cols-2">
           <InfoItem label="Username" value={user.username} />
@@ -60,14 +70,14 @@ export default function UserDetailClient({ id }: Props) {
           <InfoItem label="Website" value={user.website} />
         </div>
 
-        <h2 className="mb-3 text-lg font-semibold">Company</h2>
-        <div className="mb-6 grid gap-4 sm:grid-cols-2 rounded-lg bg-zinc-50 p-4">
+        <h2 className="mb-3 text-lg font-semibold text-[#0F2A3B]">Company</h2>
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 rounded-lg bg-[#F1F5F7] p-4">
           <InfoItem label="Name" value={user.company.name} />
           <InfoItem label="Catchphrase" value={user.company.catchPhrase} />
         </div>
 
-        <h2 className="mb-3 text-lg font-semibold">Address</h2>
-        <div className="grid gap-4 sm:grid-cols-2 rounded-lg bg-zinc-50 p-4">
+        <h2 className="mb-3 text-lg font-semibold text-[#0F2A3B]">Address</h2>
+        <div className="grid gap-4 sm:grid-cols-2 rounded-lg bg-[#F1F5F7] p-4">
           <InfoItem label="Street" value={user.address.street} />
           <InfoItem label="Suite" value={user.address.suite} />
           <InfoItem label="City" value={user.address.city} />
@@ -75,15 +85,15 @@ export default function UserDetailClient({ id }: Props) {
         </div>
       </div>
 
-      <section className="mt-8 rounded-xl border border-zinc-200 p-6 shadow-sm" aria-labelledby="posts-heading">
+      <section className="mt-8 rounded-lg border border-[#E0E6EA] p-6 shadow-sm" aria-labelledby="posts-heading">
         <div className="mb-4 flex items-center justify-between">
-          <h2 id="posts-heading" className="text-lg font-semibold">
+          <h2 id="posts-heading" className="text-lg font-semibold text-[#0F2A3B]">
             Posts ({posts.length})
           </h2>
           {posts.length > 5 && (
             <button
               onClick={() => setShowAllPosts((v) => !v)}
-              className="text-sm text-blue-600 hover:text-blue-800 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              className="text-sm text-[#0E9F8E] hover:text-[#0C8A7C] hover:underline focus:outline-none focus:ring-2 focus:ring-[#0E9F8E]/40 rounded transition-colors"
             >
               {showAllPosts ? "Show less" : "Show all"}
             </button>
@@ -91,23 +101,23 @@ export default function UserDetailClient({ id }: Props) {
         </div>
         <ul className="space-y-3">
           {displayedPosts.map((p) => (
-            <li key={p.id} className="rounded-lg border border-zinc-100 p-3">
-              <h3 className="font-medium capitalize">{p.title}</h3>
-              <p className="mt-1 text-sm text-zinc-600">{p.body}</p>
+            <li key={p.id} className="rounded-lg border border-[#E0E6EA] p-3">
+              <h3 className="font-medium text-[#0F2A3B] capitalize">{p.title}</h3>
+              <p className="mt-1 text-sm text-[#4F6B7C]">{p.body}</p>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="mt-8 rounded-xl border border-zinc-200 p-6 shadow-sm" aria-labelledby="todos-heading">
+      <section className="mt-8 rounded-lg border border-[#E0E6EA] p-6 shadow-sm" aria-labelledby="todos-heading">
         <div className="mb-4 flex items-center justify-between">
-          <h2 id="todos-heading" className="text-lg font-semibold">
+          <h2 id="todos-heading" className="text-lg font-semibold text-[#0F2A3B]">
             Todos ({todos.length})
           </h2>
           {todos.length > 5 && (
             <button
               onClick={() => setShowAllTodos((v) => !v)}
-              className="text-sm text-blue-600 hover:text-blue-800 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              className="text-sm text-[#0E9F8E] hover:text-[#0C8A7C] hover:underline focus:outline-none focus:ring-2 focus:ring-[#0E9F8E]/40 rounded transition-colors"
             >
               {showAllTodos ? "Show less" : "Show all"}
             </button>
@@ -117,13 +127,13 @@ export default function UserDetailClient({ id }: Props) {
           {displayedTodos.map((t) => (
             <li
               key={t.id}
-              className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3"
+              className="flex items-center gap-3 rounded-lg border border-[#E0E6EA] p-3"
             >
               <span
                 className={`flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center ${
                   t.completed
-                    ? "border-green-500 bg-green-50 text-green-600"
-                    : "border-orange-300 bg-orange-50 text-orange-500"
+                    ? "border-[#0E9F8E] bg-[#E8F8F5] text-[#0E9F8E]"
+                    : "border-[#C44536] bg-[#FDF0EE] text-[#C44536]"
                 }`}
                 aria-label={t.completed ? "Completed" : "Pending"}
               >
@@ -137,7 +147,7 @@ export default function UserDetailClient({ id }: Props) {
                   </svg>
                 )}
               </span>
-              <span className={t.completed ? "text-zinc-500 line-through" : "text-zinc-800"}>
+              <span className={t.completed ? "text-[#4F6B7C] line-through" : "text-[#0F2A3B]"}>
                 {t.title}
               </span>
             </li>
@@ -151,10 +161,10 @@ export default function UserDetailClient({ id }: Props) {
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+      <dt className="text-xs font-medium uppercase tracking-wide text-[#4F6B7C]" style={{ fontFamily: "var(--font-ibm-plex-mono), monospace", letterSpacing: "0.04em" }}>
         {label}
       </dt>
-      <dd className="mt-0.5 text-zinc-800">{value}</dd>
+      <dd className="mt-0.5 text-[#0F2A3B]">{value}</dd>
     </div>
   );
 }
@@ -162,24 +172,33 @@ function InfoItem({ label, value }: { label: string; value: string }) {
 function DetailSkeleton() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-6 h-4 w-24 animate-pulse rounded bg-zinc-200" />
-      <div className="rounded-xl border border-zinc-200 p-6 shadow-sm">
-        <div className="mb-6 h-8 w-48 animate-pulse rounded bg-zinc-200" />
+      <div className="mb-6 inline-flex h-11 w-[130px] animate-pulse items-center gap-2 rounded-md bg-[#E0E6EA]" />
+      <div className="rounded-lg border border-[#E0E6EA] p-6 shadow-sm">
+        <div className="mb-6 h-8 w-48 animate-pulse rounded bg-[#E0E6EA]" />
         <div className="mb-6 grid gap-4 sm:grid-cols-2">
           {Array.from({ length: 4 }, (_, i) => (
-            <div key={i} className="h-10 animate-pulse rounded bg-zinc-200" />
+            <div key={i}>
+              <div className="mb-1 h-3 w-20 animate-pulse rounded bg-[#E0E6EA]" />
+              <div className="h-5 w-32 animate-pulse rounded bg-[#E0E6EA]" />
+            </div>
           ))}
         </div>
-        <div className="mb-6 h-6 w-24 animate-pulse rounded bg-zinc-200" />
-        <div className="mb-6 grid gap-4 sm:grid-cols-2 rounded-lg bg-zinc-50 p-4">
+        <div className="mb-6 h-6 w-24 animate-pulse rounded bg-[#E0E6EA]" />
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 rounded-lg bg-[#F1F5F7] p-4">
           {Array.from({ length: 2 }, (_, i) => (
-            <div key={i} className="h-10 animate-pulse rounded bg-zinc-200" />
+            <div key={i}>
+              <div className="mb-1 h-3 w-20 animate-pulse rounded bg-[#E0E6EA]" />
+              <div className="h-5 w-36 animate-pulse rounded bg-[#E0E6EA]" />
+            </div>
           ))}
         </div>
-        <div className="mb-6 h-6 w-24 animate-pulse rounded bg-zinc-200" />
-        <div className="grid gap-4 sm:grid-cols-2 rounded-lg bg-zinc-50 p-4">
+        <div className="mb-6 h-6 w-24 animate-pulse rounded bg-[#E0E6EA]" />
+        <div className="grid gap-4 sm:grid-cols-2 rounded-lg bg-[#F1F5F7] p-4">
           {Array.from({ length: 4 }, (_, i) => (
-            <div key={i} className="h-10 animate-pulse rounded bg-zinc-200" />
+            <div key={i}>
+              <div className="mb-1 h-3 w-20 animate-pulse rounded bg-[#E0E6EA]" />
+              <div className="h-5 w-32 animate-pulse rounded bg-[#E0E6EA]" />
+            </div>
           ))}
         </div>
       </div>
@@ -190,7 +209,7 @@ function DetailSkeleton() {
 function NotFoundState() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
+      <div className="flex flex-col items-center justify-center py-20 text-[#4F6B7C]">
         <p className="text-lg font-medium text-red-600">User not found</p>
         <p className="text-sm">The requested user does not exist.</p>
       </div>

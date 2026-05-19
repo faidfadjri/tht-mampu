@@ -52,6 +52,11 @@ jest.mock("next/link", () => {
   return MockLink;
 });
 
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn() }),
+  useSearchParams: () => ({ get: () => null, toString: () => "" }),
+}));
+
 import useSWR from "swr";
 jest.mock("swr");
 const mockedUseSWR = jest.mocked(useSWR);
@@ -115,11 +120,14 @@ describe("UserDetailClient", () => {
     expect(within(todosSection).getByText("todo three")).toBeInTheDocument();
   });
 
-  it("has a back to list link pointing to /users", () => {
+  it("has a back to list button with filled style", () => {
     render(<UserDetailClient id="1" />);
 
-    const backLink = screen.getByRole("link", { name: /back to list/i });
-    expect(backLink).toHaveAttribute("href", "/users");
+    const backBtn = screen.getByRole("button", { name: /back to list/i });
+    expect(backBtn).toBeInTheDocument();
+    expect(backBtn).toHaveClass("bg-[#0E9F8E]");
+    expect(backBtn).toHaveClass("text-white");
+    expect(backBtn).toHaveClass("rounded-md");
   });
 
   it("shows show all button when more than 5 posts exist", () => {
@@ -169,5 +177,29 @@ describe("UserDetailClient", () => {
 
     expect(screen.getByText("Posts (2)")).toBeInTheDocument();
     expect(screen.getByText("Todos (3)")).toBeInTheDocument();
+  });
+
+  describe("UserDetailClient skeleton", () => {
+    beforeEach(() => {
+      mockedUseSWR.mockReturnValue({
+        data: undefined,
+        error: undefined,
+        isLoading: true,
+      } as ReturnType<typeof useSWR>);
+    });
+
+    it("renders skeleton during loading", () => {
+      render(<UserDetailClient id="1" />);
+
+      const pulses = document.querySelectorAll(".animate-pulse");
+      expect(pulses.length).toBeGreaterThan(0);
+    });
+
+    it("renders skeleton with matching card structure", () => {
+      render(<UserDetailClient id="1" />);
+
+      const skeletons = document.querySelectorAll(".animate-pulse");
+      expect(skeletons.length).toBeGreaterThan(10);
+    });
   });
 });
