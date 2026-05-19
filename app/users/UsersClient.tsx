@@ -98,7 +98,7 @@ export default function UsersList() {
     [getQuery, setQuery]
   );
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleSearch = (value: string) => {
     setInputValue(value);
