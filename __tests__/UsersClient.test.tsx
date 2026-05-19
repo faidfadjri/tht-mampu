@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import UsersList from "@/app/users/UsersClient";
 import type { UserAggregated } from "@/types";
@@ -149,10 +149,11 @@ describe("UsersList", () => {
       name: /search users/i,
     });
     await userEvent.type(searchInput, "Ervin");
-
-    expect(within(table).queryByText("Leanne Graham")).not.toBeInTheDocument();
-    expect(within(table).getByText("Ervin Howell")).toBeInTheDocument();
-    expect(within(table).queryByText("Clementine Bauch")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(within(table).queryByText("Leanne Graham")).not.toBeInTheDocument();
+      expect(within(table).getByText("Ervin Howell")).toBeInTheDocument();
+      expect(within(table).queryByText("Clementine Bauch")).not.toBeInTheDocument();
+    });
   });
 
   it("filters users by email through search input", async () => {
@@ -163,9 +164,10 @@ describe("UsersList", () => {
       name: /search users/i,
     });
     await userEvent.type(searchInput, "Sincere@april.biz");
-
-    expect(within(table).getByText("Leanne Graham")).toBeInTheDocument();
-    expect(within(table).queryByText("Ervin Howell")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(within(table).getByText("Leanne Graham")).toBeInTheDocument();
+      expect(within(table).queryByText("Ervin Howell")).not.toBeInTheDocument();
+    });
   });
 
   it("shows empty state when search matches no users", async () => {
@@ -175,8 +177,9 @@ describe("UsersList", () => {
       name: /search users/i,
     });
     await userEvent.type(searchInput, "zzzzz");
-
-    expect(screen.getAllByText("No users found").length).toBeGreaterThanOrEqual(1);
+    await waitFor(() => {
+      expect(screen.getAllByText("No users found").length).toBeGreaterThanOrEqual(1);
+    });
   });
 
   it("sorts by pending todos ascending then descending", async () => {

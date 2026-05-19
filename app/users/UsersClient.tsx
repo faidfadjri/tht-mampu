@@ -51,6 +51,7 @@ export default function UsersList() {
   const { data: users, error, isLoading } = useUsers();
   const { getQuery, setQuery } = useQueryState();
 
+  const [inputValue, setInputValue] = useState("");
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
@@ -70,6 +71,7 @@ export default function UsersList() {
     if (synced.current) return;
     synced.current = true;
     const q = getQuery();
+    setInputValue(q.q);
     setSearch(q.q);
     setSortKey(q.sort);
     setSortDir(q.dir);
@@ -96,11 +98,17 @@ export default function UsersList() {
     [getQuery, setQuery]
   );
 
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
   const handleSearch = (value: string) => {
-    setSearch(value);
-    setPage(1);
-    setDisplayCount(initialCountRef.current);
-    syncQuery({ q: value, page: 1 });
+    setInputValue(value);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setSearch(value);
+      setPage(1);
+      setDisplayCount(initialCountRef.current);
+      setQuery({ q: value, page: "1" });
+    }, 300);
   };
 
   const handleSort = (key: SortKey) => {
@@ -241,7 +249,7 @@ export default function UsersList() {
         <input
           type="search"
           placeholder="Search by name or email..."
-          value={search}
+          value={inputValue}
           onChange={(e) => handleSearch(e.target.value)}
           className="flex-1 min-w-[200px] rounded-md border border-[#D0D7DE] bg-white px-4 py-2.5 text-sm text-[#0F2A3B] placeholder-[#4F6B7C] focus:outline-none focus:ring-2 focus:ring-[#0E9F8E]/40 focus:border-[#0E9F8E]"
           aria-label="Search users by name or email"
