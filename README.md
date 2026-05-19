@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mampu — Frontend Engineer Take Home Test
 
-## Getting Started
+A responsive Next.js app that displays users with aggregated posts/todos, search, sort, filters, pagination, and detail pages.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router) + TypeScript
+- **SWR** for client data fetching
+- **Tailwind CSS v4** for styling
+- **Jest** + **React Testing Library** for unit tests
+
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev       # http://localhost:3000
+npm test          # 56 tests
+npm run build     # production build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Routes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Route | Description |
+|-------|-------------|
+| `/` | Welcome page with portfolio link and navigation to users |
+| `/users` | Users list with search, sort, filters, pagination (5/page) |
+| `/users/[id]` | User detail with info card, posts, and todos |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features
 
-## Learn More
+**Users List**
+- Fetches users, posts, and todos from JSONPlaceholder
+- Table on desktop, cards on mobile
+- Search by name or email
+- Sort by name (asc/desc) or pending todos count
+- Filter: show only users with pending todos
+- Column widths are fixed via `table-fixed` + `colgroup` to prevent layout shift
+- Pagination with URL-synced query params (search state preserved on back navigation)
 
-To learn more about Next.js, take a look at the following resources:
+**User Detail**
+- Card with name, username, email, phone, website, company, address
+- Posts section with show-all/show-less toggle (>5 posts)
+- Todos section with completion indicators and show-all toggle
+- Back button uses `router.back()` with fallback to `/users`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Styling**
+- IBM Plex Sans (body/display) + IBM Plex Mono (labels)
+- Design system: primary `#0F2A3B`, tertiary `#0E9F8E`, neutral `#F1F5F7`
+- Single accent rule — only tertiary drives interactions
+- No dark mode, high contrast throughout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**States Covered**
+- Loading skeletons for table, cards, and detail page
+- Error states with retry guidance
+- Empty state with Lottie ghost animation when filters return no results
+- Invalid user ID → "User not found" page
+- Long content truncated via `truncate` utility
 
-## Deploy on Vercel
+## Tests
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+__tests__/
+├── UsersClient.test.tsx        # List: render, filter, sort, pagination, skeleton
+├── UserDetailClient.test.tsx    # Detail: render, posts/todos, show-all toggle, skeleton
+├── app/page.test.tsx            # Welcome page content
+├── hooks/useUsers.test.ts       # useUsers hook
+├── hooks/useUserDetail.test.ts  # useUserDetail hook (including invalid id)
+├── lib/fetcher.test.ts          # API fetcher utilities
+└── components/ErrorBoundary.test.tsx
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All network calls are mocked via `jest.mock("swr")`.
+
+## Bonus
+
+- Client-side pagination (5 per page)
+- Error Boundary wrapping the detail route
+- URL query param sync for filter/sort/page state

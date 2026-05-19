@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUserDetail } from "@/hooks/useUserDetail";
-import type { User, Post, Todo } from "@/types";
 
 interface Props {
   id: string;
@@ -130,11 +128,10 @@ export default function UserDetailClient({ id }: Props) {
               className="flex items-center gap-3 rounded-lg border border-[#E0E6EA] p-3"
             >
               <span
-                className={`flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-                  t.completed
+                className={`flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center ${t.completed
                     ? "border-[#0E9F8E] bg-[#E8F8F5] text-[#0E9F8E]"
                     : "border-[#C44536] bg-[#FDF0EE] text-[#C44536]"
-                }`}
+                  }`}
                 aria-label={t.completed ? "Completed" : "Pending"}
               >
                 {t.completed ? (

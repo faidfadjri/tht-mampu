@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { fetcher } from "@/lib/fetcher";
+import { endpoints } from "@/lib/config";
 import type { User } from "@/types";
 import UserDetailClient from "./UserDetailClient";
 
@@ -13,9 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!Number.isFinite(numericId) || numericId < 1) return { title: "User Not Found" };
 
   try {
-    const user = await fetcher<User>(
-      `https://jsonplaceholder.typicode.com/users/${numericId}`
-    );
+    const user = await fetcher<User>(endpoints.user(numericId));
     if (!user.id) return { title: "User Not Found" };
 
     return {

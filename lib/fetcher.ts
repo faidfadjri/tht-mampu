@@ -1,3 +1,4 @@
+import { endpoints } from "./config";
 import type { User, Post, Todo, UserAggregated } from "@/types";
 
 export const fetcher = async <T = unknown>(url: string): Promise<T> => {
@@ -8,9 +9,9 @@ export const fetcher = async <T = unknown>(url: string): Promise<T> => {
 
 export async function fetchAggregatedUsers(): Promise<UserAggregated[]> {
   const [users, posts, todos] = await Promise.all([
-    fetcher<User[]>("https://jsonplaceholder.typicode.com/users"),
-    fetcher<Post[]>("https://jsonplaceholder.typicode.com/posts"),
-    fetcher<Todo[]>("https://jsonplaceholder.typicode.com/todos"),
+    fetcher<User[]>(endpoints.users),
+    fetcher<Post[]>(endpoints.posts),
+    fetcher<Todo[]>(endpoints.todos),
   ]);
 
   const postCounts = posts.reduce<Record<number, number>>((acc, p) => {
@@ -37,18 +38,12 @@ export async function fetchAggregatedUsers(): Promise<UserAggregated[]> {
 }
 
 export async function fetchUserDetail(id: number) {
-  const user = await fetcher<User>(
-    `https://jsonplaceholder.typicode.com/users/${id}`
-  );
+  const user = await fetcher<User>(endpoints.user(id));
   if (!user.id) throw new Error("User not found");
 
   const [posts, todos] = await Promise.all([
-    fetcher<Post[]>(
-      `https://jsonplaceholder.typicode.com/users/${id}/posts`
-    ),
-    fetcher<Todo[]>(
-      `https://jsonplaceholder.typicode.com/users/${id}/todos`
-    ),
+    fetcher<Post[]>(endpoints.userPosts(id)),
+    fetcher<Todo[]>(endpoints.userTodos(id)),
   ]);
 
   return { user, posts, todos };

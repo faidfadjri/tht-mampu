@@ -7,7 +7,6 @@ import Lottie from "lottie-react";
 import { useUsers } from "@/hooks/useUsers";
 import UsersSkeleton from "./UsersSkeleton";
 import emptyAnim from "@/public/animations/empty-ghost.json";
-import type { UserAggregated } from "@/types";
 
 type SortKey = "name" | "pendingTodos" | "totalPosts";
 
@@ -390,8 +389,8 @@ export default function UsersList() {
                   key={n}
                   onClick={() => handlePageChange(n)}
                   className={`rounded-md px-4 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#0E9F8E]/40 transition-colors ${n === safePage
-                      ? "bg-[#0E9F8E] text-white hover:bg-[#0C8A7C]"
-                      : "border border-[#D0D7DE] text-[#4F6B7C] hover:bg-[#F1F5F7]"
+                    ? "bg-[#0E9F8E] text-white hover:bg-[#0C8A7C]"
+                    : "border border-[#D0D7DE] text-[#4F6B7C] hover:bg-[#F1F5F7]"
                     }`}
                   aria-label={`Page ${n}`}
                   aria-current={n === safePage ? "page" : undefined}
