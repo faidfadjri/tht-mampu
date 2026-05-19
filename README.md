@@ -31,7 +31,7 @@ npm run build     # production build
 **Users List**
 - Fetches users, posts, and todos from JSONPlaceholder
 - Table on desktop, cards on mobile
-- Search by name or email
+- Search by name or email with 300ms debounce
 - Sort by name (asc/desc) or pending todos count
 - Filter: show only users with pending todos
 - Column widths are fixed via `table-fixed` + `colgroup` to prevent layout shift

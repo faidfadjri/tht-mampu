@@ -175,8 +175,8 @@ function DetailSkeleton() {
         <div className="mb-6 grid gap-4 sm:grid-cols-2">
           {Array.from({ length: 4 }, (_, i) => (
             <div key={i}>
-              <div className="mb-1 h-3 w-20 animate-pulse rounded bg-[#E0E6EA]" />
-              <div className="h-5 w-32 animate-pulse rounded bg-[#E0E6EA]" />
+              <div className="mb-1 h-3 w-full max-w-24 animate-pulse rounded bg-[#E0E6EA]" />
+              <div className="h-5 w-full animate-pulse rounded bg-[#E0E6EA]" />
             </div>
           ))}
         </div>
@@ -184,8 +184,8 @@ function DetailSkeleton() {
         <div className="mb-6 grid gap-4 sm:grid-cols-2 rounded-lg bg-[#F1F5F7] p-4">
           {Array.from({ length: 2 }, (_, i) => (
             <div key={i}>
-              <div className="mb-1 h-3 w-20 animate-pulse rounded bg-[#E0E6EA]" />
-              <div className="h-5 w-36 animate-pulse rounded bg-[#E0E6EA]" />
+              <div className="mb-1 h-3 w-full max-w-24 animate-pulse rounded bg-[#E0E6EA]" />
+              <div className="h-5 w-full animate-pulse rounded bg-[#E0E6EA]" />
             </div>
           ))}
         </div>
@@ -193,8 +193,30 @@ function DetailSkeleton() {
         <div className="grid gap-4 sm:grid-cols-2 rounded-lg bg-[#F1F5F7] p-4">
           {Array.from({ length: 4 }, (_, i) => (
             <div key={i}>
-              <div className="mb-1 h-3 w-20 animate-pulse rounded bg-[#E0E6EA]" />
-              <div className="h-5 w-32 animate-pulse rounded bg-[#E0E6EA]" />
+              <div className="mb-1 h-3 w-full max-w-24 animate-pulse rounded bg-[#E0E6EA]" />
+              <div className="h-5 w-full animate-pulse rounded bg-[#E0E6EA]" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="mt-8 rounded-lg border border-[#E0E6EA] p-6 shadow-sm">
+        <div className="mb-4 h-5 w-24 animate-pulse rounded bg-[#E0E6EA]" />
+        <div className="space-y-3">
+          {Array.from({ length: 3 }, (_, i) => (
+            <div key={i} className="rounded-lg border border-[#E0E6EA] p-3">
+              <div className="mb-1 h-4 w-3/5 animate-pulse rounded bg-[#E0E6EA]" />
+              <div className="h-4 w-full animate-pulse rounded bg-[#E0E6EA]" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="mt-8 rounded-lg border border-[#E0E6EA] p-6 shadow-sm">
+        <div className="mb-4 h-5 w-24 animate-pulse rounded bg-[#E0E6EA]" />
+        <div className="space-y-2">
+          {Array.from({ length: 3 }, (_, i) => (
+            <div key={i} className="flex items-center gap-3 rounded-lg border border-[#E0E6EA] p-3">
+              <div className="h-5 w-5 flex-shrink-0 animate-pulse rounded-full bg-[#E0E6EA]" />
+              <div className="h-4 w-2/5 animate-pulse rounded bg-[#E0E6EA]" />
             </div>
           ))}
         </div>
